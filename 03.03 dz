@@ -7,7 +7,6 @@ class Car:
     def __getattr__(self, item):
         return "This attribute is not available"
 
-# Пример использования
 c = Car("Toyota", "Corolla")
 print(c.make)   # Toyota
 print(c.model)  # Corolla
@@ -24,7 +23,6 @@ class Rectangle:
         else:
             raise AttributeError("Local attributes are not allowed")
 
-# Пример использования
 r = Rectangle(10, 20)
 r.width = 15   # Успешно
 r.height = 25  # Успешно
