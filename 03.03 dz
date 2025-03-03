@@ -27,3 +27,63 @@ r = Rectangle(10, 20)
 r.width = 15   # Успешно
 r.height = 25  # Успешно
 r.color = 'red'  # AttributeError: Local attributes are not allowed
+class Fraction:
+  @classmethod
+  def prov(cls,b):
+    print('dsad')
+    if b==0:
+      return False
+    return True
+  @staticmethod
+  def int_value(a,b):
+    if isinstance(a,int) and isinstance(b,int):
+      pass
+    else:
+      raise ValueError('Need a number as int')
+  @staticmethod
+  def trans(a):
+    b=10
+    while a%b!=0:
+      a=a*b
+      b=b*10
+    return int(a),int(b)
+  def __init__(self,a,b=None):
+    if b==None:
+      a,b=self.trans(a)
+    self.int_value(a,b)
+    self.a=a
+    if self.prov(b):
+      self.b=b
+    else:
+      raise(ValueError('Cant be 0'))
+  def __setattr__(self, key, value):
+        if key in {'a', 'b'}:
+            super().__setattr__(key, value)
+        else:
+            raise AttributeError("Local attributes are not allowed")
+  def __str__(self,val=False):
+    if val==True:
+      
+      return(round(self.a/self.b,3))
+      
+    else:
+      return(f'{self.a}/{self.b}')
+    
+  def vald(self):
+    c=self.__str__(True)
+    return c
+  def __add__(self, other):
+    if  not isinstance(other, (int, Fraction)):
+      raise ArithmeticError("Правый операнд должен быть Fraction")
+
+    sc = other
+    if sc.b==self.b:
+      return(f'{self.a+sc.a}/{self.b}')
+    else:
+      return(f'{self.a*sc.b+sc.a*self.b}/{self.b*sc.b}')
+
+f1=Fraction(0.1)
+f2=Fraction(3,5)
+print(f1)
+print(f1.vald())
+print(f1+f2)
