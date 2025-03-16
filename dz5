@@ -1,0 +1,84 @@
+from fractions import Fraction
+from copy import deepcopy
+
+class FractionMatrix:
+    def __new__(cls, data):
+        obj = super().__new__(cls)
+        obj._validate_matrix(data)
+        obj._data = deepcopy(data)
+        return obj
+
+    def __init__(self, data):
+        self.rows = len(data)
+        self.cols = len(data[0])
+
+    @staticmethod
+    def _validate_matrix(matrix):
+        if not all(isinstance(row, list) for row in matrix):
+            raise ValueError("Матрица должна состоять из списков.")
+        row_length = len(matrix[0])
+        for row in matrix:
+            if len(row) != row_length:
+                raise ValueError("Все строки должны иметь одинаковую длину.")
+            if not all(isinstance(el, Fraction) for el in row):
+                raise ValueError("Все элементы должны быть экземплярами Fraction.")
+
+    @classmethod
+    def zeros(cls, rows, cols):
+        return cls([[Fraction(0) for _ in range(cols)] for _ in range(rows)])
+
+    def __add__(self, other):
+        if not isinstance(other, FractionMatrix) or (self.rows, self.cols) != (other.rows, other.cols):
+            raise ValueError("Размерности матриц должны совпадать для сложения.")
+        return FractionMatrix([[self._data[i][j] + other._data[i][j] for j in range(self.cols)] for i in range(self.rows)])
+
+    def __sub__(self, other):
+        if not isinstance(other, FractionMatrix) or (self.rows, self.cols) != (other.rows, other.cols):
+            raise ValueError("Размерности матриц должны совпадать для вычитания.")
+        return FractionMatrix([[self._data[i][j] - other._data[i][j] for j in range(self.cols)] for i in range(self.rows)])
+
+    def __mul__(self, other):
+        if not isinstance(other, FractionMatrix) or self.cols != other.rows:
+            raise ValueError("Число столбцов первой матрицы должно быть равно числу строк второй матрицы.")
+        result = [[Fraction(0) for _ in range(other.cols)] for _ in range(self.rows)]
+        for i in range(self.rows):
+            for j in range(other.cols):
+                result[i][j] = sum(self._data[i][k] * other._data[k][j] for k in range(self.cols))
+        return FractionMatrix(result)
+
+    def transpose(self):
+        return FractionMatrix([[self._data[j][i] for j in range(self.rows)] for i in range(self.cols)])
+
+    @staticmethod
+    def _determinant(matrix):
+        if len(matrix) == 1:
+            return matrix[0][0]
+        if len(matrix) == 2:
+            return matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
+
+        det = Fraction(0)
+        for c in range(len(matrix)):
+            minor = [row[:c] + row[c+1:] for row in matrix[1:]]
+            det += ((-1) ** c) * matrix[0][c] * FractionMatrix._determinant(minor)
+        return det
+
+    @property
+    def determinant(self):
+        if self.rows != self.cols:
+            raise ValueError("Определитель можно вычислить только для квадратных матриц.")
+        return self._determinant(self._data)
+
+    def __str__(self):
+        return "\n".join(["\t".join(map(str, row)) for row in self._data])
+        
+m1 = FractionMatrix([[Fraction(1, 2), Fraction(1, 3)], [Fraction(2, 5), Fraction(3, 4)]])
+m2 = FractionMatrix([[Fraction(1, 3), Fraction(2, 3)], [Fraction(1, 2), Fraction(2, 5)]])
+
+print("Сложение матриц:")
+print(m1 + m2)
+
+print("\nУмножение матриц:")
+print(m1 * m2)
+
+print("\nОпределитель первой матрицы:")
+print(m1.determinant)
