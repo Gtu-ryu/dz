@@ -26,8 +26,6 @@ class User:
         else:
             print("Ошибка: пароль слишком короткий")
 
-
-# Тестирование
 user = User.create_default_user("Alice")
 print(user.get_username())  # Вывод: Alice
 
