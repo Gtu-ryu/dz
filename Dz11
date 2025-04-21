@@ -1,0 +1,48 @@
+#3
+class Student:
+    __slots__ = ['name', 'age', 'grade']
+
+    def __init__(self, name, age, grade):
+        self.name = name
+        self.age = age
+        self.grade = grade
+
+def average_grade(students):
+    if not students:
+        return 0
+    total = sum(student.grade for student in students)
+    return total / len(students)
+students = [
+    Student("Аня", 20, 85),
+    Student("Борис", 21, 90),
+    Student("Светлана", 19, 78),
+    Student("Дима", 22, 92),
+    Student("Елена", 20, 88),
+]
+
+avg = average_grade(students)
+print(f"Средняя оценка студентов: {avg:.2f}")
+
+#4
+class Product:
+    __slots__ = ['name', 'price', 'quantity']
+
+    def __init__(self, name, price, quantity):
+        self.name = name
+        self.price = price
+        self.quantity = quantity
+
+def filter(products_dict, price_m):
+    return [name for name, product in products_dict.items() if product.price > price_m]
+
+products = {
+    "Ноутбук": Product("Ноутбук", 75000, 10),
+    "Смартфон": Product("Смартфон", 35000, 25),
+    "Монитор": Product("Монитор", 18000, 7),
+    "Клавиатура": Product("Клавиатура", 2500, 50),
+    "Наушники": Product("Наушники", 6000, 30),
+}
+
+line_m = 10000
+expensive = filter(products, line_m)
+print(f"Товары дороже {line_m} руб.: {expensive}")
