@@ -1,0 +1,191 @@
+#1
+import json
+
+class UserProfile:
+    def __init__(self, name, age, interests):
+        self.name = name
+        self.age = age
+        self.interests = interests
+
+    def to_dict(self):
+        return vars(self)
+
+    @classmethod
+    def from_dict(cls, d):
+        try:
+            return cls(d["name"], d["age"], d["interests"])
+        except KeyError as e:
+            raise KeyError(f"Missing field: {e}")
+
+def save_profile(user, filename):
+    try:
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(user.to_dict(), f, ensure_ascii=False)
+    except Exception as e:
+        print(f"Save error: {e}")
+
+def load_profile(filename):
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            return UserProfile.from_dict(json.load(f))
+    except FileNotFoundError:
+        print("File not found.")
+    except json.JSONDecodeError:
+        print("Invalid JSON.")
+    except KeyError as e:
+        print(e)
+    except Exception as e:
+        print(f"Load error: {e}")
+
+user = UserProfile("Alice", 25, ["Python", "AI"])
+save_profile(user, "profile.json")
+new_user = load_profile("profile.json")
+#2
+import pickle, os
+
+class Task:
+    def __init__(self, title, priority, done=False):
+        self.title, self.priority, self.done = title, priority, done
+    def __repr__(self):
+        return f"[{'✔' if self.done else '✗'}] {self.title} (priority {self.priority})"
+
+class TaskManager:
+    FILE = "tasks.pickle"
+
+    def __init__(self):
+        self.tasks = self.load()
+
+    def load(self):
+        if not os.path.exists(self.FILE): return []
+        try: return pickle.load(open(self.FILE, "rb"))
+        except EOFError: return []
+
+    def save(self):
+        pickle.dump(self.tasks, open(self.FILE, "wb"))
+
+    def add(self, title, priority):
+        self.tasks.append(Task(title, priority))
+        self.save()
+
+    def delete(self, index):
+        if 0 <= index < len(self.tasks):
+            self.tasks.pop(index)
+            self.save()
+
+    def mark_done(self, index):
+        if 0 <= index < len(self.tasks):
+            self.tasks[index].done = True
+            self.save()
+
+    def show(self):
+        for i, t in enumerate(self.tasks): print(f"{i}. {t}")
+
+tm = TaskManager()
+tm.add("Python", 1)
+tm.add("Отдых", 2)
+tm.mark_done(0)
+tm.delete(1)
+tm.show()
+#3
+import json
+
+def load_users(filename):
+    loaded, skipped = 0, 0
+    valid_users = []
+
+    try:
+        with open(filename, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError) as e:
+        print(f"Ошибка загрузки JSON: {e}")
+        return [], 0, 0
+
+    for user in data:
+        try:
+            if not isinstance(user, dict):
+                raise ValueError("Не словарь")
+            if not isinstance(user.get("id"), int):
+                raise ValueError("Неверный тип id")
+            if not isinstance(user.get("name"), str):
+                raise ValueError("Неверный тип name")
+            email = user.get("email")
+            if not isinstance(email, str) or "@" not in email:
+                raise ValueError("Неверный email")
+            valid_users.append(user)
+            loaded += 1
+        except ValueError as e:
+            print(f"Пропущен пользователь: {user} — {e}")
+            skipped += 1
+
+    return valid_users, loaded, skipped
+users=
+[
+    {"id": 1, "name": "Tom", "email": "tom@example.com"},
+    {"id": "2", "name": "Ann", "email": "annexample.com"},
+    {"id": 3, "name": "Bob", "email": "bob@"}
+]
+
+users, ok, bad = load_users(users)
+print(f"Загружено: {ok}, Пропущено: {bad}")
+#4
+import pickle
+import os
+from datetime import datetime
+
+class Note:
+    def __init__(self, title, text):
+        self.title = title
+        self.text = text
+        self.created_at = datetime.now()
+
+    def __repr__(self):
+        return f"({self.created_at.strftime('%Y-%m-%d %H:%M:%S')}) {self.title}: {self.text}"
+
+class NoteManager:
+    FILE = "notes.pkl"
+
+    def __init__(self):
+        self.notes = self.load_notes()
+
+    def load_notes(self):
+        if not os.path.exists(self.FILE):
+            return []
+        try:
+            with open(self.FILE, "rb") as f:
+                return pickle.load(f)
+        except Exception as e:
+            print(f"Ошибка при загрузке данных: {e}")
+            return []
+
+    def save_notes(self):
+        try:
+            with open(self.FILE, "wb") as f:
+                pickle.dump(self.notes, f)
+        except Exception as e:
+            print(f"Ошибка при сохранении данных: {e}")
+
+    def add_note(self, title, text):
+        self.notes.append(Note(title, text))
+        self.save_notes()
+
+    def delete_note(self, index):
+        if 0 <= index < len(self.notes):
+            del self.notes[index]
+            self.save_notes()
+        else:
+            print("Неверный индекс заметки.")
+
+    def show_all_notes(self):
+        if not self.notes:
+            print("Нет заметок.")
+        for note in self.notes:
+            print(note)
+
+manager = NoteManager()
+
+manager.add_note("Заметка 1", "Текст первой заметки")
+manager.add_note("Заметка 2", "Текст второй заметки")
+manager.show_all_notes()
+
+manager.delete_note(0)
+manager.show_all_notes()
